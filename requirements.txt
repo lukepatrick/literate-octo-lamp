@@ -1,4 +1,3 @@
 nose2
 scrape
-urllib
-logging
+urllib3

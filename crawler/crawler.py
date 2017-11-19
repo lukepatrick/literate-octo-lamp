@@ -3,7 +3,7 @@ import logging
 
 class crawler(object):
     
-    def __init__(self, url):
+    def __init__(self, url=""):
         self.url = url
         self.log = logging.getLogger(__name__)
 
@@ -19,7 +19,7 @@ class crawler(object):
         if not url:
             return False
 
-        
+
 
 
 
