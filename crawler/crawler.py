@@ -1,5 +1,5 @@
 import logging
-
+import urllib.request as urlreq
 
 class crawler(object):
     
@@ -20,6 +20,14 @@ class crawler(object):
             return False
 
 
-
+        try:
+            request = urlreq.Request(url)
+            response = urlreq.urlopen(request)
+            # response valid
+            return True
+        except:
+            # The url wasn't valid
+            self.log.warning("URL {} not valid or no Internet Connection".format(url))
+            return False
 
 

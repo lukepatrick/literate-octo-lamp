@@ -14,11 +14,8 @@ class CrawlerTestCase(unittest.TestCase):
         self.myCrawler = None
 
 
-    def test_something(self):
-        self.assertEqual(True, False)
-
     def test_valid_url(self):
-        url = "www.google.com"
+        url = "http://www.google.com"
 
         response = None
         response = self.myCrawler.valid_url(url=url)
