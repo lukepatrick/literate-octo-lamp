@@ -18,6 +18,9 @@ The goals for this simple app are:
 	- links to static content such as images
 	- for each respective page
 
+## Live Demo
+[![asciicast](https://asciinema.org/a/84hJCSPeUPuKCU8Y1fHwRsf6G.png)](https://asciinema.org/a/84hJCSPeUPuKCU8Y1fHwRsf6G)
+
 ## Setup
 
 Assuming a Mac, use [Homebrew](https://brew.sh/) to install python3 if not already
