@@ -49,7 +49,7 @@ class crawler(object):
             tree object of HTML elements
         """
         if not self.valid_url(url):
-            return None
+            raise Exception("URL {} not valid or no Internet Connection".format(url))
         # Get Page
         page = requests.get(url)
         # Get HTML
@@ -133,7 +133,7 @@ class crawler(object):
 
         self.web_crawl_index.append(link_object)
 
-    def get_all_links(self, url, depth=10):
+    def get_all_links(self, url, depth=5):
         """Loop over all links possible
             The only way a 'new' link gets added is if I haven't seen it yet
             loop over self.domain until no more links are added

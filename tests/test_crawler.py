@@ -58,7 +58,12 @@ class CrawlerTestCase(unittest.TestCase):
         self.assertIsNotNone(self.myCrawler.domain)
         self.assertGreater(len(self.myCrawler.domain), 0)
 
+    def test_get_all_links_bad(self):
+        with self.assertRaises(Exception) as context:
+            url = "AAABBCCC"
+            self.myCrawler.get_all_links(url=url, depth=1)
 
+        self.assertTrue("not valid" in str(context.exception))
 
 
 

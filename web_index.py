@@ -14,7 +14,7 @@ def main(argv):
     crw = web_index()
 
     if argv[0]:
-        if argv[1]:
+        if len(argv) > 1:
             crw.my_crawler.get_all_links(url=argv[0], depth=int(argv[1]))
         else:
             crw.my_crawler.get_all_links(url=argv[0])
