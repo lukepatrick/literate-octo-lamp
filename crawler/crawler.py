@@ -4,6 +4,7 @@ from urllib.parse import urlparse
 import urltools
 from lxml import html
 import requests
+import json
 
 
 class crawler(object):
@@ -13,6 +14,7 @@ class crawler(object):
         self.log = logging.getLogger(__name__)
         self.domain = []
         self.third_party = []
+        self.web_crawl_index = []
 
     def valid_url(self, url):
         """Validate the URL
@@ -70,7 +72,7 @@ class crawler(object):
             url
            
         Returns:
-            list
+            modifies class objects
         """
 
         links, images = self.parse_html(url=url)
@@ -78,6 +80,17 @@ class crawler(object):
         # parse the input url for a base domain
         my_domain_parsed = urltools.parse(url)
         my_domain_string = my_domain_parsed.domain + "." + my_domain_parsed.tld
+
+        # {"link":url,
+        # "sublinks": links,
+        # "static-elements": images,
+        #  "third-party": url}
+        link_object = {}
+
+        link_object["link"] = url
+        link_object["sublinks"] = []
+        link_object["static-elements"] = images
+        link_object["third-party"] = []
 
         for link in links:
             parsed = urltools.parse(str(link))
@@ -89,26 +102,38 @@ class crawler(object):
                     subdomain = parsed.subdomain + "." if parsed.subdomain else ''
                     urlstring = parsed.scheme + "://" + subdomain + parsed.domain\
                                 + "." + parsed.tld + parsed.path
+                    if not urlstring in link_object["sublinks"]:
+                        # sublinks is a relative unique list of links
+                        link_object["sublinks"].append(urlstring)
                     if not urlstring in self.domain:
+                        # self domain is global unique list of links
                         self.domain.append(urlstring)
                 elif parsed.domain == '':
                     # handle relative path URL's, assume they belong to base domain of input url
                     path = parsed.path if parsed.path.startswith("/") else "/" + parsed.path
                     urlstring = my_domain_parsed.scheme + "://" + my_domain_parsed.subdomain + "." + \
                                 my_domain_parsed.domain + "." + my_domain_parsed.tld + path
+                    if not urlstring in link_object["sublinks"]:
+                        # sublinks is a relative unique list of links
+                        link_object["sublinks"].append(urlstring)
                     if not urlstring in self.domain:
+                        # self domain is global unique list of links
                         self.domain.append(urlstring)
                 else:
                     # handle non-matching domains, assume all third-party
                     subdomain = parsed.subdomain + "." if parsed.subdomain else ''
                     urlstring = parsed.scheme + "://" + subdomain + parsed.domain \
                                 + "." + parsed.tld + parsed.path
+                    if not urlstring in link_object["third-party"]:
+                        # third-party is a relative unique list of links
+                        link_object["third-party"].append(urlstring)
                     if not urlstring in self.third_party:
+                        # self third party is global unique list of links
                         self.third_party.append(urlstring)
 
+        self.web_crawl_index.append(link_object)
 
-
-    def get_all_links(self, url):
+    def get_all_links(self, url, depth=10):
         """Loop over all links possible
             The only way a 'new' link gets added is if I haven't seen it yet
             loop over self.domain until no more links are added
@@ -127,7 +152,8 @@ class crawler(object):
             self.process_links(link)
             counter += 1
             # let's stop at some point, this can go on for awhile if not properly handled
-            if counter > 10:
+            if counter > depth:
                 break
 
-        print(self.domain)
+        print(json.dumps(self.web_crawl_index, indent=2)
+)
