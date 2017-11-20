@@ -32,7 +32,9 @@ Clone the repository to your machine.
 Enter directory and set up virtualenv
 
     $ cd literate-octo-lamp
-    $ ./setup.sh
+    $ virtualenv env --no-site-packages --python=python3
+    $ source env/bin/activate
+    $ pip3 install -r requirements.txt
     
 ## Quick start
 
@@ -99,8 +101,13 @@ Where to take this project next
 
 ## Test
 
-Run the nose2 test framework
+Run the nose2 test framework. Depending on your environment, if you have multiple python
+versions installed you may have to specify which python runs nose2. 
 
     $ nose2
+
+If you're running both python2 and 3, try:
+
+    $ python3 -m "nose2"
 
 See also the TravisCI builder link at the top
