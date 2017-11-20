@@ -11,6 +11,8 @@ class crawler(object):
     def __init__(self, url=""):
         self.url = url
         self.log = logging.getLogger(__name__)
+        self.domain = []
+        self.third_party = []
 
     def valid_url(self, url):
         """Validate the URL
@@ -73,8 +75,6 @@ class crawler(object):
 
         links, images = self.parse_html(url=url)
 
-        domain = []
-        third_party = []
         # parse the input url for a base domain
         my_domain_parsed = urltools.parse(url)
         my_domain_string = my_domain_parsed.domain + "." + my_domain_parsed.tld
@@ -82,26 +82,52 @@ class crawler(object):
         for link in links:
             parsed = urltools.parse(str(link))
             domain_string = parsed.domain + "." + parsed.tld
+            if not parsed.path.startswith("#"):
+                # skip all anchor links
+                if domain_string == my_domain_string:
+                    # compare domains, assuming subdomain does not matter for 'uniqueness'
+                    subdomain = parsed.subdomain + "." if parsed.subdomain else ''
+                    urlstring = parsed.scheme + "://" + subdomain + parsed.domain\
+                                + "." + parsed.tld + parsed.path
+                    if not urlstring in self.domain:
+                        self.domain.append(urlstring)
+                elif parsed.domain == '':
+                    # handle relative path URL's, assume they belong to base domain of input url
+                    path = parsed.path if parsed.path.startswith("/") else "/" + parsed.path
+                    urlstring = my_domain_parsed.scheme + "://" + my_domain_parsed.subdomain + "." + \
+                                my_domain_parsed.domain + "." + my_domain_parsed.tld + path
+                    if not urlstring in self.domain:
+                        self.domain.append(urlstring)
+                else:
+                    # handle non-matching domains, assume all third-party
+                    subdomain = parsed.subdomain + "." if parsed.subdomain else ''
+                    urlstring = parsed.scheme + "://" + subdomain + parsed.domain \
+                                + "." + parsed.tld + parsed.path
+                    if not urlstring in self.third_party:
+                        self.third_party.append(urlstring)
 
-            if domain_string == my_domain_string:
-                # compare domains, assuming subdomain does not matter for 'uniqueness'
-                urlstring = parsed.scheme + "://" + parsed.subdomain + "." + parsed.domain\
-                            + "." + parsed.tld + parsed.path
-                if not urlstring in domain:
-                    domain.append(urlstring)
-            elif parsed.domain == '':
-                # handle relative path URL's, assume they below to base domain of input url
-                path = parsed.path if parsed.path.startswith("/") else "/" + parsed.path
-                urlstring = my_domain_parsed.scheme + "://" + my_domain_parsed.subdomain + "." + \
-                            my_domain_parsed.domain + "." + my_domain_parsed.tld + path
-                if not urlstring in domain:
-                    domain.append(urlstring)
-            else:
-                # handle non-matching domains, assume all third-party
-                subdomain = parsed.subdomain + "." if parsed.subdomain else ''
-                urlstring = parsed.scheme + "://" + subdomain + parsed.domain \
-                            + "." + parsed.tld + parsed.path
-                if not urlstring in third_party:
-                    third_party.append(urlstring)
 
-        return domain, third_party
+
+    def get_all_links(self, url):
+        """Loop over all links possible
+            The only way a 'new' link gets added is if I haven't seen it yet
+            loop over self.domain until no more links are added
+
+        Args:
+            url
+
+        Returns:
+            list
+        """
+
+        self.process_links(url)
+        counter = 0
+
+        for link in self.domain:
+            self.process_links(link)
+            counter += 1
+            # let's stop at some point, this can go on for awhile if not properly handled
+            if counter > 10:
+                break
+
+        print(self.domain)

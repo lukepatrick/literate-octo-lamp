@@ -40,14 +40,19 @@ class CrawlerTestCase(unittest.TestCase):
     def test_process_links(self):
         url = "http://buildit.wiprodigital.com/"
 
-        domain = None
-        third_party = None
 
-        domain, third_party = self.myCrawler.process_links(url=url)
-        self.assertIsNotNone(domain)
-        self.assertGreater(len(domain), 0)
+        self.myCrawler.process_links(url=url)
+        self.assertIsNotNone(self.myCrawler.domain)
+        self.assertGreater(len(self.myCrawler.domain), 0)
+
+    def test_get_all_links(self):
+        url = "http://buildit.wiprodigital.com/"
 
 
+
+        self.myCrawler.get_all_links(url=url)
+        self.assertIsNotNone(self.myCrawler.domain)
+        self.assertGreater(len(self.myCrawler.domain), 0)
 
 
 
