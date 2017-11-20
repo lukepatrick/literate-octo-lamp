@@ -37,6 +37,18 @@ class CrawlerTestCase(unittest.TestCase):
         self.assertGreater(len(links), 0)
         self.assertGreater(len(images), 0)
 
+    def test_process_links(self):
+        url = "http://buildit.wiprodigital.com/"
+
+        domain = None
+        third_party = None
+
+        domain, third_party = self.myCrawler.process_links(url=url)
+        self.assertIsNotNone(domain)
+        self.assertGreater(len(domain), 0)
+
+
+
 
 
 
